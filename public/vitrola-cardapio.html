@@ -639,10 +639,15 @@
 
       sh.querySelector('button[aria-label="Fechar"]').addEventListener('click', closeOrder);
       sh.querySelector('#sendorder').addEventListener('click', () => {
-        const name = (document.getElementById('name') || {}).value?.trim() || '';
-        const phone = (document.getElementById('phone') || {}).value?.trim() || '';
-        const address = (document.getElementById('address') || {}).value?.trim() || '';
-        const pay = document.querySelector('input[name="pay"]:checked')?.value || 'Pix';
+        // avoid optional chaining for compatibility with older preview environments
+        const nameEl = document.getElementById('name');
+        const phoneEl = document.getElementById('phone');
+        const addressEl = document.getElementById('address');
+        const payEl = document.querySelector('input[name="pay"]:checked');
+        const name = nameEl && nameEl.value ? nameEl.value.trim() : '';
+        const phone = phoneEl && phoneEl.value ? phoneEl.value.trim() : '';
+        const address = addressEl && addressEl.value ? addressEl.value.trim() : '';
+        const pay = payEl && payEl.value ? payEl.value : 'Pix';
         const err = document.getElementById('err');
 
         if (!name || !phone) {
@@ -651,20 +656,20 @@
         }
 
         const text = [
-          `Olá, Vitrola! Gostaria de fazer o seguinte pedido:`,
+          'Olá, Vitrola! Gostaria de fazer o seguinte pedido:',
           ...entries.map(([id, qty]) => {
             const item = findItemById(id);
-            return `- ${item ? item.name : id}: ${qty}x`;
+            return '- ' + (item ? item.name : id) + ': ' + qty + 'x';
           }),
           '',
-          `Nome: ${name}`,
-          `Telefone: ${phone}`,
-          `Pagamento: ${pay}`,
-          `Endereço: ${address || 'Não informado'}`,
-          `Total: ${money(total)}`
+          'Nome: ' + name,
+          'Telefone: ' + phone,
+          'Pagamento: ' + pay,
+          'Endereço: ' + (address || 'Não informado'),
+          'Total: ' + money(total)
         ].join('\n');
 
-        const url = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(text)}`;
+        const url = 'https://wa.me/' + CFG.whatsapp + '?text=' + encodeURIComponent(text);
         window.open(url, '_blank');
       });
     }
